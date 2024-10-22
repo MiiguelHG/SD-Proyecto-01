@@ -55,7 +55,10 @@ async def saveLibro(titulo: str = Form(...),
     # parsear el autor_id a ObjectId, agregar la URL de la imagen y guardar el libro
     try:
         libro = CreateLibro(titulo=titulo, autor_id=autor_id, descripcion=descripcion, imagen_portada=imagen_url, inventario=inventario)
-        result = await libro_collection.insert_one(libro.dict())
+        autor_id = ObjectId(libro.autor_id)
+        libro_dict = libro.dict()
+        libro_dict["autor_id"] = autor_id
+        result = await libro_collection.insert_one(libro_dict)
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Error Insertar MongoDB: {str(e)}")
     
