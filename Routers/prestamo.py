@@ -25,7 +25,8 @@ async def obtenerPrestamo(id: str):
         prestamo["_id"] = str(prestamo["_id"])
         prestamo["lector_id"] = str(prestamo["lector_id"])
         prestamo["libro_id"] = str(prestamo["libro_id"])
-        prestamo["bibliotecario_id"] = str(prestamo["bilbiotecario_id"])
+        prestamo["bibliotecario_id"] = str(prestamo["bibliotecario_id"])
+        return prestamo
     raise HTTPException(status_code=404, detail="Préstamo no encontrado")
 
 # Agregar un prestamo
@@ -36,10 +37,8 @@ async def savePrestamo(lector_id: str = Form(...),
                        foto_credencial: UploadFile = File(...)):
     
     # Se obtiene la fecha del día y se le suman tres días
-    fecha_prestamo = date.today()
-    fecha_devolucion = fecha_prestamo + timedelta(days=3)
-    fecha_prestamo = datetime.combine(fecha_prestamo, date.min.time())
-    fecha_devolucion = datetime.combine(fecha_devolucion, date.min.time())
+    fecha_prestamo = datetime.combine(date.today(), datetime.min.time())
+    fecha_devolucion = datetime.combine(date.today() + timedelta(days=3), datetime.min.time())
 
     try:
         lector = await lector_collection.find_one({"_id": ObjectId(lector_id)})    
@@ -55,6 +54,10 @@ async def savePrestamo(lector_id: str = Form(...),
         raise HTTPException(status_code=404, detail="Libro no encontrado")
     if not bibliotecario:
         raise HTTPException(status_code=404, detail="Bibliotecario no encontrado")
+    
+    # Verificar que el esté disponible
+    if libro["inventario"] == False:
+        raise HTTPException(status_code=200, detail="Libro no disponible")
 
     try:
         # Guardar el archivo temporalmente
@@ -68,7 +71,14 @@ async def savePrestamo(lector_id: str = Form(...),
         raise HTTPException(status_code=404, detail=f"Error Guardar archivo: {str(e)}")
     
     try:
-        prestamo = createPrestamo(lector_id=lector_id, libro_id=libro_id, fecha_prestamo=fecha_prestamo, fecha_devolucion=fecha_devolucion, bibliotecario_id=bibliotecario_id, foto_credencial=imagen_url)
+        prestamo = createPrestamo(
+            lector_id=lector_id, 
+            libro_id=libro_id, 
+            fecha_prestamo=fecha_prestamo, 
+            fecha_devolucion=fecha_devolucion, 
+            bibliotecario_id=bibliotecario_id, 
+            foto_credencial=imagen_url
+        )
         lector_id = ObjectId(prestamo.lector_id)
         libro_id = ObjectId(prestamo.libro_id)
         bibliotecario_id = ObjectId(prestamo.bibliotecario_id)
@@ -108,7 +118,7 @@ async def getPrestamoById(id: str):
     return await obtenerPrestamo(id)
 
 # Actualizar un prestamo por su ID
-@router.put("/{di}", response_description="Actualizar un libro por su ID")
+@router.put("/{id}", response_description="Actualizar un libro por su ID")
 async def updatePrestamoById(id: str, prestamo: createPrestamo):
     try:
         lector = await lector_collection.find_one({"_id": ObjectId(prestamo.lector_id)})    

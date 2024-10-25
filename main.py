@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from Routers import bibliotecario, autor, lector, libro, prestamo
+from .Routers import bibliotecario, autor, lector, libro, prestamo
 
 app = FastAPI()
 
