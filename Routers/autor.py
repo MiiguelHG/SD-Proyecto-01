@@ -1,8 +1,8 @@
 from fastapi import APIRouter, HTTPException
 from bson import ObjectId
 
-from DB.db import db
-from Schemas.autorSchema import CreateAutor
+from ..DB.db import db
+from ..Schemas.autorSchema import CreateAutor
 
 Autor_collection = db["autor"]
 

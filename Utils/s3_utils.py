@@ -3,8 +3,9 @@ from botocore.exceptions import NoCredentialsError
 import os
 
 # Definir el servicio y la regin de AWS
-session = boto3.Session(profile_name="guillermo")
-s3 = session.client("s3", region_name="us-east-2")
+# session = boto3.Session(profile_name="guillermo")
+# s3 = session.client("s3", region_name="us-east-2")
+s3 = boto3.client("s3", region_name="us-east-2")
 
 bucket = "proyecto1-upiiz-bucketsaws-s3"
 

@@ -1,8 +1,8 @@
 from fastapi import APIRouter, HTTPException
 from bson import ObjectId
 
-from DB.db import db
-from Schemas.bibliotecarioSchema import CreateBibliotecario
+from ..DB.db import db
+from ..Schemas.bibliotecarioSchema import CreateBibliotecario
 
 Bibliotecario_collection = db["bibliotecario"]
 

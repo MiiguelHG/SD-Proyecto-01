@@ -2,9 +2,9 @@ from fastapi import APIRouter, HTTPException, UploadFile, File, Form
 from bson import ObjectId
 import os
 
-from DB.db import db
-from Schemas.libroSchema import CreateLibro
-from Utils.s3_utils import subir_objeto, eliminar_objeto
+from ..DB.db import db
+from ..Schemas.libroSchema import CreateLibro
+from ..Utils.s3_utils import subir_objeto, eliminar_objeto
 import shutil
 
 libro_collection = db["libro"]

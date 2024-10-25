@@ -1,8 +1,8 @@
 from fastapi import APIRouter, HTTPException
 from bson import ObjectId
 
-from DB.db import db
-from Schemas.lectorSchema import CreateLector
+from ..DB.db import db
+from ..Schemas.lectorSchema import CreateLector
 
 lector_collection = db["lector"]
 
