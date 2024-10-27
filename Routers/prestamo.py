@@ -4,7 +4,7 @@ from datetime import date, timedelta, datetime
 import os
 
 from ..DB.db import db
-from ..Schemas.prestamoSchema import createPrestamo
+from ..Schemas.prestamoSchema import createPrestamo, updatePrestamo
 from ..Utils.s3_utils import subir_objeto, eliminar_objeto
 import shutil
 
@@ -119,7 +119,16 @@ async def getPrestamoById(id: str):
 
 # Actualizar un prestamo por su ID
 @router.put("/{id}", response_description="Actualizar un libro por su ID")
-async def updatePrestamoById(id: str, prestamo: createPrestamo):
+async def updatePrestamoById(id: str, prestamo: updatePrestamo):
+    # Verificar que el prestamo exista
+    try:
+        res = await prestamo_collection.find_one({"_id": ObjectId(id)})
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Error buscar prestamo: {str(e)}")
+    
+    if not res:
+        raise HTTPException(status_code=404, detail="Préstamo no encontrado")
+
     try:
         lector = await lector_collection.find_one({"_id": ObjectId(prestamo.lector_id)})    
         libro = await libro_collection.find_one({"_id": ObjectId(prestamo.libro_id)})
@@ -143,9 +152,11 @@ async def updatePrestamoById(id: str, prestamo: createPrestamo):
         prestamo_dict["lector_id"] = lector_id
         prestamo_dict["libro_id"] = libro_id
         prestamo_dict["bibliotecario_id"] = bibliotecario_id
+        prestamo_dict["fecha_prestamo"] = datetime.combine(date.today(), datetime.min.time())
+        prestamo_dict["fecha_devolucion"] = datetime.combine(date.today() + timedelta(days=3), datetime.min.time())
         result = await prestamo_collection.update_one({"_id": ObjectId(id)}, {"$set":prestamo_dict})
     except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Error: {str(e)}")
+        raise HTTPException(status_code=400, detail=f"Error actualizar: {str(e)}")
     
     if result.modified_count == 1:
         return await obtenerPrestamo(id)
@@ -164,7 +175,7 @@ async def deletePrestamo(id: str):
     try:
         result = await prestamo_collection.delete_one({"_id": ObjectId(id)})
     except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Error: {str(e)}")
+        raise HTTPException(status_code=400, detail=f"Error eliminar: {str(e)}")
     
     if result.deleted_count == 1:
         return HTTPException(status_code=204, detail="Préstamo eliminado exitosamente")

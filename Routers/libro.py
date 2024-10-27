@@ -90,10 +90,17 @@ async def getLibroById(id: str):
 # Actualizar un libro por su ID
 @router.put("/{id}", response_description="Actualizar un libro por su ID")
 async def updateLibrobyId(id: str, libro: CreateLibro):
+    # Verificar si el libro existe
+    try:
+        libro = await libro_collection.find_one({"_id": ObjectId(id)})
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=f"Error buscar libro: {str(e)}")
+
+    # Buscar el autor del libro
     try:
         autor = await autor_collection.find_one({"_id": ObjectId(libro.autor_id)})
     except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Error: {str(e)}")
+        raise HTTPException(status_code=400, detail=f"Error buscar autor: {str(e)}")
     
     if not autor:
         raise HTTPException(status_code=404, detail="Autor no encontrado")
@@ -104,7 +111,7 @@ async def updateLibrobyId(id: str, libro: CreateLibro):
         libro_dict["autor_id"] = autor_id
         result = await libro_collection.update_one({"_id": ObjectId(id)}, {"$set": libro_dict})
     except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Error: {str(e)}")
+        raise HTTPException(status_code=400, detail=f"Error actualizar libro: {str(e)}")
     
     if result.modified_count == 1:
         return await obtenerLibro(id)
@@ -127,7 +134,7 @@ async def deleteLibro(id: str):
     try:
         result = await libro_collection.delete_one({"_id": ObjectId(id)})
     except Exception as e:
-        raise HTTPException(status_code=400, detail=f"Error: {str(e)}")
+        raise HTTPException(status_code=400, detail=f"Error eliminar libro: {str(e)}")
     
     if result.deleted_count == 1:
         return HTTPException(status_code=204, detail="Libro eliminado exitosamente")

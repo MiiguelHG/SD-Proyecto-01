@@ -9,4 +9,8 @@ class createPrestamo(BaseModel):
     bibliotecario_id: str
     foto_credencial: str
 
-
+class updatePrestamo(BaseModel):
+    lector_id: str
+    libro_id: str
+    bibliotecario_id: str
+    foto_credencial: str
