@@ -69,7 +69,7 @@ datos que se ingresarán en el body:
 <br>
 En el caso de las entidades de prestamo y libro el cuerpo tendrá una forma diferente 
 de ingresar los datos, ya que se ingresarán en forma de formulario teniendo además un
-apartado para hacer la carga de una imagen desde la computadora:
+apartado para hacer la carga de una imagen desde la computadora, para subir las imágenes de libro y préstamo se utilizo un `multipart/form data` para tomar las imágenes, subirlas a s3 y generar el URL donde se encontrará la imagen:
 ##### POST de la entidad libro:
 ![Diagrama del sistema](Media/post_libro_body.PNG)
 ##### POST de la entidad prestamo:
@@ -84,3 +84,5 @@ apunta a un archivo alojado en Amazon S3
 Las imagenes cargadas desde la api se almacenaran en un bucket llamado 
 "proyecto1-upiiz-bucketsaws-s3" en la carpeta "Credenciales"
 ![Diagrama del sistema](Media/credencial_aws.jpeg)
+Para el caso de las portadas estas se almacenaran en un bucket llamado "proyecto1-upiiz-bucketsaws-s3" en la carpeta "Portadas".
+![Diagrama del sistema](Media/portadas.jpeg)
